@@ -1,32 +1,40 @@
-// backend/server.js
 const express = require('express');
 const { exec } = require('child_process');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 const port = 3000;
 
-// Configuración de multer para manejar la subida de archivos
 const upload = multer({ dest: 'uploads/' });
 
-// Endpoint para subir archivos y ejecutar el código
-app.post('/execute', upload.single('file'), (req, res) => {
-  const file = req.file;
-  const fileType = path.extname(file.originalname);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-  let command = '';
-  if (fileType === '.cpp') {
-    command = `g++ ${file.path} -o ${file.path}.out && ${file.path}.out`;
-  } else if (fileType === '.py') {
-    command = `python ${file.path}`;
-  }
+app.post('/execute-cpp', (req, res) => {
+  const seq1 = req.body.seq1;
+  const seq2 = req.body.seq2;
+  
+  const scriptPath = path.join(__dirname, 'compile_and_run_cpp.bat');
+  const resultFilePath = path.join(__dirname, 'cpp', 'alineamiento_global', 'alignment_results.txt');
 
-  exec(command, (error, stdout, stderr) => {
+  // Ejecutar el script de compilación y ejecución
+  exec(`"${scriptPath}" ${seq1} ${seq2}`, (error, stdout, stderr) => {
     if (error) {
-      res.status(500).send({ error: stderr });
-      return;
+      console.error(`Error ejecutando el script: ${error}`);
+      return res.status(500).send({ error: stderr });
     }
-    res.send({ output: stdout });
+    
+    // Leer el archivo de resultados
+    fs.readFile(resultFilePath, 'utf8', (err, data) => {
+      if (err) {
+        console.error(`Error leyendo el archivo de resultados: ${err}`);
+        return res.status(500).send({ error: err.message });
+      }
+      
+      // Enviar el contenido del archivo de resultados al cliente
+      res.send({ output: data });
+    });
   });
 });
 
