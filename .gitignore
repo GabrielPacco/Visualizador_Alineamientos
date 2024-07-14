@@ -1,0 +1,34 @@
+# Ignorar archivos específicos del sistema
+.DS_Store
+
+# Ignorar directorios de módulos de Node.js
+node_modules
+
+# Ignorar directorio de distribución
+/dist
+
+# Ignorar archivos de entorno locales
+.env.local
+.env.*.local
+
+# Ignorar archivos de registros de NPM y Yarn
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Ignorar directorios y archivos del editor
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Reglas adicionales específicas para el backend
+# Ignorar directorios de módulos de Node.js en backend
+backend/node_modules
+
+# Ignorar archivos de bloqueo de NPM en backend
+backend/package-lock.json
